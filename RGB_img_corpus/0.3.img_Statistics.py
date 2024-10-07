@@ -2,6 +2,8 @@ import pandas as pd
 
 # Definir la ruta del archivo de entrada y salida
 OUTPUT_EXCEL_PATH = r'E:\BUAP-MEXICO\DECIMO SEMESTRE\0.2.PROJECT\Imagenes\RGB_img_corpus\0.2.resultado_R.xlsx'
+
+#El resultado que se muestra de este código es los datos estadisticos de las iamgenes del corpus en la dimencion R
 OUTPUT_EXCEL_STATS_PATH = r'E:\BUAP-MEXICO\DECIMO SEMESTRE\0.2.PROJECT\Imagenes\RGB_img_corpus\0.3.resultado_Estadisticas.xlsx'
 
 try:
