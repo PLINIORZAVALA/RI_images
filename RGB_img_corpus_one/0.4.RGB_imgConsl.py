@@ -4,23 +4,27 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# ------------------------ Funciones de procesamiento de imágenes ------------------------
-
 # Función para convertir una imagen en el vector del canal R (Rojo)
-def image_to_r_vector(image_path, size=(4, 4)):
+def image_to_r_vector(image_path, size):
     """
     Convierte una imagen en un vector 1D del canal R.
     
     :param image_path: La ruta completa de la imagen.
-    :param size: Tamaño al que se redimensionará la imagen, por defecto 4x4.
+    :param size: Tamaño al que se redimensionará la imagen.
     :return: Un vector 1D del canal R y el canal R en 2D.
     """
+    # Leer la imagen en formato RGB
     image = cv2.imread(image_path, cv2.IMREAD_COLOR)
     if image is None:
         raise ValueError(f"No se pudo leer la imagen en {image_path}")
     
+    # Redimensionar la imagen a un tamaño fijo
     image_resized = cv2.resize(image, size)
+    
+    # Separar la imagen en los tres canales B, G, R (OpenCV usa BGR por defecto)
     _, _, r_channel = cv2.split(image_resized)
+    
+    # Aplanar el canal R en un vector 1D
     r_vector = r_channel.flatten()
     
     return r_vector, r_channel
@@ -31,63 +35,91 @@ def get_image_files(corpus_path, extensions=('.png', '.jpg', '.jpeg')):
     Obtiene todos los archivos de imagen en el directorio especificado.
     
     :param corpus_path: Ruta del directorio donde están las imágenes.
-    :param extensions: Extensiones de archivo permitidas.
+    :param extensions: Extensiones de archivo permitidas (por defecto: .png, .jpg, .jpeg).
     :return: Lista de nombres de archivos de imagen.
     """
     return [f for f in os.listdir(corpus_path) if f.endswith(extensions)]
 
 # Función para guardar el DataFrame de una matriz R en un archivo Excel
-def save_r_vector_to_excel(r_vector, output_path, image_file, size=(4, 4)):
+def save_r_vector_to_excel(r_vector, output_path, image_file, size):
     """
     Guarda un vector R en un archivo Excel como una matriz.
     
     :param r_vector: Vector del canal R.
     :param output_path: Ruta donde se guardará el archivo Excel.
     :param image_file: Nombre del archivo de imagen (se usará para nombrar el archivo Excel).
-    :param size: Tamaño al que se redimensionó la imagen.
+    :param size: Tamaño de la imagen (ancho y alto).
     """
-    r_matrix = r_vector.reshape(size)
-    df_r = pd.DataFrame(r_matrix)
+    # Calcular el número de filas y columnas según el tamaño de la imagen
+    height, width = size
+    df_r = pd.DataFrame(r_vector.reshape((height, width)))  # Cambiar el tamaño según la imagen
+
+    # Crear el nombre del archivo Excel
     excel_file = os.path.join(output_path, f'{os.path.splitext(image_file)[0]}_RGB_Vector.xlsx')
+    
+    # Guardar el DataFrame en un archivo Excel
     df_r.to_excel(excel_file, index=False, header=False)
+    
+    # Mostrar la ruta donde se ha guardado el archivo Excel
     print(f"Archivo guardado en: {excel_file}")
 
-# Función para visualizar el canal R en tonos de rojo
-def visualize_r_channel(r_channel, image_file):
+# Función para guardar el canal R en tonos de rojo como imagen
+def save_r_channel_image(r_channel, image_file, output_dir):
     """
-    Visualiza el canal R de una imagen en tonos de rojo.
+    Guarda el canal R de una imagen en tonos de rojo en un archivo.
     
     :param r_channel: El canal R de la imagen en formato 2D.
     :param image_file: Nombre del archivo de imagen para el título de la visualización.
+    :param output_dir: Ruta del directorio donde se guardará la imagen.
     """
-    g_channel = np.zeros_like(r_channel)
-    b_channel = np.zeros_like(r_channel)
-    rgb_image = cv2.merge([b_channel, g_channel, r_channel])
-    plt.imshow(rgb_image)
-    plt.title(f"Canal R Visualizado en Rojo: {image_file}")
-    plt.axis('off')
-    plt.show()
+    # Crear canales G y B vacíos
+    g_channel = np.zeros_like(r_channel)  # Canal G vacío
+    b_channel = np.zeros_like(r_channel)  # Canal B vacío
 
-# Función principal para procesar imágenes
-def process_and_visualize_images(corpus_path, output_path, size=(4, 4)):
+    # Combinar los canales para formar una imagen RGB
+    rgb_image = cv2.merge([b_channel, g_channel, r_channel])
+
+    # Crear el nombre del archivo de salida
+    output_image_file = os.path.join(output_dir, f'{os.path.splitext(image_file)[0]}_R_Channel.png')
+
+    # Guardar la imagen
+    cv2.imwrite(output_image_file, rgb_image)
+
+    # Mostrar la ruta donde se ha guardado la imagen
+    print(f"Imagen guardada en: {output_image_file}")
+
+# Función principal para procesar todas las imágenes, guardar sus vectores R y visualizarlas
+def process_and_visualize_images(corpus_path, output_path, size):
     """
     Procesa todas las imágenes en un directorio, convierte su canal R en un vector,
-    guarda el resultado en archivos Excel y visualiza el canal R en tonos de rojo.
+    guarda el resultado en archivos Excel y guarda el canal R como imágenes.
     
     :param corpus_path: Ruta del directorio donde están las imágenes.
     :param output_path: Ruta donde se guardarán los archivos Excel.
     :param size: Tamaño al que se redimensionarán las imágenes.
     """
+    # Obtener todos los archivos de imagen en el directorio
     image_files = get_image_files(corpus_path)
     
+    # Verificar si la carpeta de destino existe, si no, crearla
     if not os.path.exists(output_path):
         os.makedirs(output_path)
-    
+
+    # Crear un subdirectorio para almacenar las imágenes del canal R
+    r_channel_dir = os.path.join(output_path, "R_Channel_Images")
+    if not os.path.exists(r_channel_dir):
+        os.makedirs(r_channel_dir)
+
+    # Iterar a través de cada archivo de imagen
     for image_file in image_files:
-        image_path = os.path.join(corpus_path, image_file)
-        r_vector, r_channel = image_to_r_vector(image_path, size)
+        image_path = os.path.join(corpus_path, image_file)  # Ruta completa de la imagen
+        r_vector, r_channel = image_to_r_vector(image_path, size)  # Convertir la imagen a vector R
+
+        # Guardar el vector R en un archivo Excel
         save_r_vector_to_excel(r_vector, output_path, image_file, size)
-        visualize_r_channel(r_channel, image_file)
+
+        # Guardar el canal R como imagen
+        save_r_channel_image(r_channel, image_file, r_channel_dir)
 
 # ------------------------ Funciones de cálculo de estadísticas ------------------------
 
@@ -152,20 +184,34 @@ def process_r_vectors_and_calculate_statistics(input_path, output_path):
 
         # Guardar el DataFrame de estadísticas en un archivo Excel
         save_statistics_to_excel(estadisticas_df, output_file)
-
-# ------------------------ Función principal que orquesta todo el flujo ------------------------
-
+        
+ 
+# ------------------------ Función principal que orquesta todo el flujo ------------------------       
+# Función principal que orquesta todo el flujo
 def main():
     corpus_path = r'E:\BUAP-MEXICO\DECIMO SEMESTRE\0.2.PROJECT\Imagenes\curpus'
     output_path = r'E:\BUAP-MEXICO\DECIMO SEMESTRE\0.2.PROJECT\Imagenes\RGB_img_corpus_one\0.2.dataImages'
-    image_size = (4, 4)
     
+    # Solicitar al usuario las dimensiones de la imagen
+    while True:
+        try:
+            width = int(input("Ingrese el ancho de la imagen (ejemplo: 10): "))
+            height = int(input("Ingrese la altura de la imagen (ejemplo: 10): "))
+            image_size = (height, width)  # Notar que el orden es (alto, ancho)
+            break
+        except ValueError:
+            print("Por favor, ingrese números válidos para el ancho y la altura.")
+
     # Procesar todas las imágenes, guardar sus vectores R y visualizarlas
     process_and_visualize_images(corpus_path, output_path, image_size)
     
+        
     # Procesar los archivos Excel de vectores R y calcular sus estadísticas
     stats_output_path = r'E:\BUAP-MEXICO\DECIMO SEMESTRE\0.2.PROJECT\Imagenes\RGB_img_corpus_one\0.3.dataStadictist'
+    
+    #Almacena todos los valores estadisticos el archivo
     process_r_vectors_and_calculate_statistics(output_path, stats_output_path)
+
 
 # Ejecutar la función principal
 if __name__ == "__main__":
