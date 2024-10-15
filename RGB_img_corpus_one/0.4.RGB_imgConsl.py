@@ -206,7 +206,7 @@ def main():
     process_and_visualize_images(corpus_path, output_path, image_size)
     
         
-    # Procesar los archivos Excel de vectores R y calcular sus estadísticas
+    # Direcion donde el archivo procesado de alamacenara 
     stats_output_path = r'E:\BUAP-MEXICO\DECIMO SEMESTRE\0.2.PROJECT\Imagenes\RGB_img_corpus_one\0.3.dataStadictist'
     
     #Almacena todos los valores estadisticos el archivo
