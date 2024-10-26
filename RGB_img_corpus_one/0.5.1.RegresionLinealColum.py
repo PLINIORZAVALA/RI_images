@@ -8,13 +8,7 @@ from scipy import stats
 # Función para calcular la regresión lineal
 def calcular_regresion(X, Y):
     slope, intercept, r_value, _, _ = stats.linregress(X, Y)
-    linea_regresion = [slope * xi + intercept for xi in X]
-    return slope, intercept, r_value, linea_regresion
-
-# Función para calcular las distancias entre los puntos y la línea de regresión
-def calcular_distancias(Y, linea_regresion):
-    distancias = [yi - pred for yi, pred in zip(Y, linea_regresion)]
-    return distancias  
+    return slope, intercept, r_value
 
 # Función para procesar los archivos Excel y obtener los datos
 def process_excel_files(input_path, output_path, column):
@@ -23,7 +17,7 @@ def process_excel_files(input_path, output_path, column):
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    # Crear un dataframe vacío para almacenar todas las estadísticas y distancias
+    # Crear un dataframe vacío para almacenar los resultados
     all_data = pd.DataFrame()
 
     for excel_file in excel_files:
@@ -47,29 +41,47 @@ def process_excel_files(input_path, output_path, column):
         if data.empty:
             continue
 
+        # Almacenar la columna en el DataFrame
+        all_data[excel_file] = data  # Nombre del archivo como nombre de la columna
+
+    # Guardar los resultados en un archivo Excel
+    output_excel = os.path.join(output_path, 'Resultados_Columnas.xlsx')
+    all_data.to_excel(output_excel, index=False)
+
+    messagebox.showinfo("Éxito", f"Datos procesados y guardados en {output_path}.")
+
+# Función para calcular la regresión lineal para cada columna
+def calcular_regresiones(input_excel_path, output_path):
+    df = pd.read_excel(input_excel_path)
+    
+    # Crear un DataFrame para almacenar los resultados de la regresión
+    regression_results = pd.DataFrame()
+
+    # Iterar sobre cada columna en el DataFrame
+    for column in df.columns:
+        data = pd.to_numeric(df[column], errors='coerce').dropna()
+        
+        # Evitar procesar si no hay datos válidos
+        if data.empty:
+            continue
+
         X = list(range(1, len(data) + 1))
         Y = data.tolist()
 
         # Calcular la regresión lineal
-        slope, intercept, r_value, linea_regresion = calcular_regresion(X, Y)
+        slope, intercept, r_value = calcular_regresion(X, Y)
 
-        # Calcular las distancias entre los puntos y la línea de regresión
-        distancias = calcular_distancias(Y, linea_regresion)
+        # Almacenar los resultados en el DataFrame
+        regression_results[column] = [slope, intercept, r_value**2]
 
-        # Guardar los datos en el dataframe all_data
-        all_data[f"{excel_file}_Y"] = Y  # Los valores originales
-        all_data[f"{excel_file}_Distancias"] = distancias  # Las distancias
-
-        # Almacenar las estadísticas (pendiente, intersección, R^2)
-        all_data[f"{excel_file}_Pendiente"] = [slope] * len(Y)
-        all_data[f"{excel_file}_Intersección"] = [intercept] * len(Y)
-        all_data[f"{excel_file}_Coeficiente_R2"] = [r_value**2] * len(Y)
+    # Renombrar las filas para claridad
+    regression_results.index = ['Pendiente', 'Intersección', 'R^2']
 
     # Guardar los resultados en un archivo Excel
-    output_excel = os.path.join(output_path, 'Resultados_Columnas_y_Distancias.xlsx')
-    all_data.to_excel(output_excel, index=False)
+    output_excel = os.path.join(output_path, 'Resultados_Regresiones.xlsx')
+    regression_results.to_excel(output_excel)
 
-    messagebox.showinfo("Éxito", f"Datos procesados y guardados en {output_path}.")
+    messagebox.showinfo("Éxito", f"Resultados de la regresión guardados en {output_path}.")
 
 # Interfaz gráfica con tkinter
 class App:
@@ -94,6 +106,10 @@ class App:
         process_button = ttk.Button(self.root, text="Procesar archivos Excel", style="TButton", command=self.process_files)
         process_button.pack(pady=10)
 
+        # Botón para calcular regresiones
+        regression_button = ttk.Button(self.root, text="Calcular regresiones", style="TButton", command=self.calculate_regressions)
+        regression_button.pack(pady=10)
+
         # Botón para salir de pantalla completa con la tecla Escape
         self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
 
@@ -112,6 +128,22 @@ class App:
                 return
 
             process_excel_files(input_path, output_path, column)
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def calculate_regressions(self):
+        try:
+            input_excel_path = filedialog.askopenfilename(title="Seleccionar archivo Excel")
+            if not input_excel_path:
+                messagebox.showwarning("Error", "No seleccionaste ningún archivo Excel.")
+                return
+
+            output_path = filedialog.askdirectory(title="Seleccionar carpeta de salida")
+            if not output_path:
+                messagebox.showwarning("Error", "No seleccionaste ninguna carpeta de salida.")
+                return
+
+            calcular_regresiones(input_excel_path, output_path)
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
