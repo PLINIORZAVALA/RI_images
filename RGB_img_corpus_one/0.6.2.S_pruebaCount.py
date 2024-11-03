@@ -1,3 +1,4 @@
+# CONTRAR DENTRO DEL RANGO ESPECIFICO DE LOS PORCENTAJES
 import os
 import pandas as pd
 import numpy as np
@@ -22,6 +23,8 @@ def procesar_y_graficar(input_excel, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    resultados = []
+
     for column in df.columns:
         # Convertir la columna a datos numéricos
         data = pd.to_numeric(df[column], errors='coerce').dropna()
@@ -45,6 +48,19 @@ def procesar_y_graficar(input_excel, output_dir):
         y_upper_997 = (intercept + 3 * sigma_e) + slope * X
         y_lower_997 = (intercept - 3 * sigma_e) + slope * X
 
+        # Contar puntos en cada intervalo específico
+        dentro_0_68 = np.sum((Y >= y_reg) & (Y <= y_upper_68)) + np.sum((Y <= y_reg) & (Y >= y_lower_68))
+        dentro_68_95 = np.sum((Y > y_upper_68) & (Y <= y_upper_95)) + np.sum((Y < y_lower_68) & (Y >= y_lower_95))
+        dentro_95_997 = np.sum((Y > y_upper_95) & (Y <= y_upper_997)) + np.sum((Y < y_lower_95) & (Y >= y_lower_997))
+
+        # Guardar resultados en la lista
+        resultados.append({
+            "Columna": column,
+            "Dentro de 0-68% (±1σ)": dentro_0_68,
+            "Dentro de 68-95% (±1σ a ±2σ)": dentro_68_95,
+            "Dentro de 95-99.7% (±2σ a ±3σ)": dentro_95_997
+        })
+
         # Crear la gráfica
         plt.figure(figsize=(10, 6))
         plt.plot(X, Y, 'o', label='Datos', markersize=5)
@@ -67,7 +83,12 @@ def procesar_y_graficar(input_excel, output_dir):
         plt.savefig(output_path)
         plt.close()
 
-    messagebox.showinfo("Éxito", f"Gráficas generadas y guardadas en {output_dir}.")
+    # Crear un DataFrame con los resultados y guardarlo en un archivo Excel
+    df_resultados = pd.DataFrame(resultados)
+    output_excel = os.path.join(output_dir, 'Resultados_intervalos_confianza.xlsx')
+    df_resultados.to_excel(output_excel, index=False)
+
+    messagebox.showinfo("Éxito", f"Gráficas y resultados generados y guardados en {output_dir}.")
 
 # Interfaz gráfica con tkinter
 class App:

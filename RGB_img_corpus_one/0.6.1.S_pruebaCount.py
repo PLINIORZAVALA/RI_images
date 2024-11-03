@@ -1,3 +1,4 @@
+#PARA OBTENER LOS INTERBSALO DESDE LA LINE DE REGRESION
 import os
 import pandas as pd
 import numpy as np
@@ -22,6 +23,9 @@ def procesar_y_graficar(input_excel, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    # Lista para almacenar resultados de conteo de cada columna
+    resultados = []
+
     for column in df.columns:
         # Convertir la columna a datos numéricos
         data = pd.to_numeric(df[column], errors='coerce').dropna()
@@ -45,6 +49,19 @@ def procesar_y_graficar(input_excel, output_dir):
         y_upper_997 = (intercept + 3 * sigma_e) + slope * X
         y_lower_997 = (intercept - 3 * sigma_e) + slope * X
 
+        # Contar puntos en cada intervalo de confianza
+        dentro_68 = np.sum((Y >= y_lower_68) & (Y <= y_upper_68))
+        dentro_95 = np.sum((Y >= y_lower_95) & (Y <= y_upper_95))
+        dentro_997 = np.sum((Y >= y_lower_997) & (Y <= y_upper_997))
+
+        # Agregar resultados a la lista
+        resultados.append({
+            "Columna": column,
+            "Dentro de 68% (±1σ)": dentro_68,
+            "Dentro de 95% (±2σ)": dentro_95,
+            "Dentro de 99.7% (±3σ)": dentro_997
+        })
+
         # Crear la gráfica
         plt.figure(figsize=(10, 6))
         plt.plot(X, Y, 'o', label='Datos', markersize=5)
@@ -67,7 +84,12 @@ def procesar_y_graficar(input_excel, output_dir):
         plt.savefig(output_path)
         plt.close()
 
-    messagebox.showinfo("Éxito", f"Gráficas generadas y guardadas en {output_dir}.")
+    # Crear un DataFrame con los resultados y guardar en un archivo Excel
+    resultados_df = pd.DataFrame(resultados)
+    resultados_path = os.path.join(output_dir, 'Resultados_Conteo_Confianza.xlsx')
+    resultados_df.to_excel(resultados_path, index=False)
+
+    messagebox.showinfo("Éxito", f"Gráficas y archivo de resultados generados y guardados en {output_dir}.")
 
 # Interfaz gráfica con tkinter
 class App:

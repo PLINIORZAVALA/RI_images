@@ -52,9 +52,13 @@ def process_and_visualize_images(corpus_path, output_path, size):
 
     for image_file in image_files:
         image_path = os.path.join(corpus_path, image_file)
-        r_vector, r_channel = image_to_r_vector(image_path, size)
-        save_r_vector_to_excel(r_vector, output_path, image_file, size)
-        save_r_channel_image(r_channel, image_file, r_channel_dir)
+        try:
+            r_vector, r_channel = image_to_r_vector(image_path, size)
+            save_r_vector_to_excel(r_vector, output_path, image_file, size)
+            save_r_channel_image(r_channel, image_file, r_channel_dir)
+        except Exception as e:
+            print(f"Error procesando {image_file}: {e}")
+
 
 # Función para calcular estadísticas de un DataFrame
 def calculate_statistics(df):
