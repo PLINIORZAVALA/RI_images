@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reel de Conceptos — RI_images</title>
+  <style>
+    /* ── base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f;
+      --card: #12121c;
+      --border: #1e1e30;
+      --accent1: #7c3aed;
+      --accent2: #06b6d4;
+      --accent3: #f59e0b;
+      --accent4: #10b981;
+      --accent5: #ef4444;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --w: 390px;
+      --h: 692px;
+    }
+    html, body {
+      height: 100%;
+      background: #060609;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── phone shell ── */
+    .phone {
+      width: var(--w);
+      height: var(--h);
+      background: var(--bg);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 0 2px #1a1a2e, 0 0 60px rgba(124,58,237,.35), 0 32px 80px rgba(0,0,0,.8);
+    }
+    .phone::before {          /* notch */
+      content: '';
+      position: absolute;
+      top: 10px; left: 50%; transform: translateX(-50%);
+      width: 100px; height: 6px;
+      background: #1a1a2e;
+      border-radius: 3px;
+      z-index: 100;
+    }
+
+    /* ── slides container ── */
+    .reel {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      transition: transform .45s cubic-bezier(.77,0,.18,1);
+    }
+
+    /* ── individual slide ── */
+    .slide {
+      width: var(--w);
+      min-height: var(--h);
+      display: flex;
+      flex-direction: column;
+      padding: 48px 28px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── backgrounds per slide ── */
+    .slide-0 { background: linear-gradient(145deg,#0d0d1a 0%, #1a0d33 100%); }
+    .slide-1 { background: linear-gradient(145deg,#0d1a1f 0%, #0d2233 100%); }
+    .slide-2 { background: linear-gradient(145deg,#0f1a0f 0%, #0d2918 100%); }
+    .slide-3 { background: linear-gradient(145deg,#1a0d0d 0%, #2a1a00 100%); }
+    .slide-4 { background: linear-gradient(145deg,#0d0d1a 0%, #1a0d33 100%); }
+    .slide-5 { background: linear-gradient(145deg,#0a1a22 0%, #0d1f2e 100%); }
+    .slide-6 { background: linear-gradient(145deg,#160d1a 0%, #2a0d3a 100%); }
+    .slide-7 { background: linear-gradient(145deg,#0d1a0f 0%, #0a2218 100%); }
+    .slide-8 { background: linear-gradient(145deg,#1a1206 0%, #2a1e00 100%); }
+    .slide-9 { background: linear-gradient(145deg,#0a0a0f 0%, #151528 100%); }
+
+    /* ── slide counter ── */
+    .counter {
+      position: absolute;
+      top: 22px; right: 20px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      font-weight: 600;
+    }
+
+    /* ── chip / tag ── */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      width: fit-content;
+    }
+
+    /* ── headings ── */
+    h1 { font-size: 28px; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
+    h2 { font-size: 22px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+    .sub { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+
+    /* ── cards / blocks ── */
+    .card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+    .card-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .icon-box {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .card-text strong { display: block; font-size: 13px; font-weight: 700; }
+    .card-text span { font-size: 12px; color: var(--muted); }
+
+    /* ── pipeline ── */
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .pipe-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,.03);
+      border-radius: 12px;
+      border-left: 3px solid transparent;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .pipe-arrow {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ── code block ── */
+    .codeblock {
+      background: #090912;
+      border: 1px solid #1e1e30;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      overflow: hidden;
+    }
+    .kw  { color: #c792ea; }
+    .fn  { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .cm  { color: #546e7a; }
+    .num { color: #f78c6c; }
+
+    /* ── formula ── */
+    .formula {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    /* ── stat grid ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .stat-box {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+    .stat-box .val { font-size: 20px; font-weight: 800; display: block; }
+    .stat-box .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── interval bars ── */
+    .interval-bar {
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .interval-bar span { font-size: 12px; font-weight: 500; }
+
+    /* ── tech pills ── */
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tech-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 7px 13px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* ── progress dots ── */
+    .dots {
+      position: absolute;
+      top: 28px; left: 50%; transform: translateX(-50%);
+      display: flex;
+      gap: 4px;
+    }
+    .dot {
+      width: 4px; height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,.25);
+      transition: all .3s;
+    }
+    .dot.active { width: 20px; background: white; }
+
+    /* ── arrows ── */
+    .nav {
+      position: fixed;
+      bottom: 28px; left: 50%; transform: translateX(-50%);
+      display: flex;
+      gap: 16px;
+      z-index: 200;
+    }
+    .nav button {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,.1);
+      backdrop-filter: blur(8px);
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      transition: background .2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav button:hover { background: rgba(255,255,255,.2); }
+    .nav button:disabled { opacity: .3; cursor: default; }
+
+    /* ── pixel grid decoration ── */
+    .pixel-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      margin-bottom: 14px;
+    }
+    .px {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      font-size: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      color: rgba(0,0,0,.7);
+    }
+
+    /* ── animate in ── */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .slide.active .chip,
+    .slide.active h1,
+    .slide.active h2,
+    .slide.active .sub,
+    .slide.active .card,
+    .slide.active .pipe-step,
+    .slide.active .codeblock,
+    .slide.active .formula,
+    .slide.active .stat-box,
+    .slide.active .interval-bar,
+    .slide.active .tech-pill {
+      animation: fadeUp .5s ease both;
+    }
+    .slide.active .card:nth-child(1) { animation-delay:.05s; }
+    .slide.active .card:nth-child(2) { animation-delay:.12s; }
+    .slide.active .card:nth-child(3) { animation-delay:.19s; }
+    .slide.active .card:nth-child(4) { animation-delay:.26s; }
+    .slide.active .pipe-step:nth-child(1) { animation-delay:.05s; }
+    .slide.active .pipe-step:nth-child(2) { animation-delay:.10s; }
+    .slide.active .pipe-step:nth-child(3) { animation-delay:.15s; }
+    .slide.active .pipe-step:nth-child(4) { animation-delay:.20s; }
+    .slide.active .pipe-step:nth-child(5) { animation-delay:.25s; }
+    .slide.active .pipe-step:nth-child(6) { animation-delay:.30s; }
+    .slide.active .pipe-step:nth-child(7) { animation-delay:.35s; }
+    .slide.active .stat-box:nth-child(1) { animation-delay:.05s; }
+    .slide.active .stat-box:nth-child(2) { animation-delay:.12s; }
+    .slide.active .stat-box:nth-child(3) { animation-delay:.19s; }
+    .slide.active .stat-box:nth-child(4) { animation-delay:.26s; }
+    .slide.active .tech-pill:nth-child(1) { animation-delay:.05s; }
+    .slide.active .tech-pill:nth-child(2) { animation-delay:.10s; }
+    .slide.active .tech-pill:nth-child(3) { animation-delay:.15s; }
+    .slide.active .tech-pill:nth-child(4) { animation-delay:.20s; }
+    .slide.active .tech-pill:nth-child(5) { animation-delay:.25s; }
+    .slide.active .tech-pill:nth-child(6) { animation-delay:.30s; }
+    .slide.active .tech-pill:nth-child(7) { animation-delay:.35s; }
+
+    /* ── big emoji ── */
+    .big-emoji { font-size: 52px; margin-bottom: 14px; display: block; }
+
+    /* swipe hint */
+    .swipe-hint {
+      position: absolute;
+      bottom: 18px; left: 0; right: 0;
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone" id="phone">
+  <div class="dots" id="dots"></div>
+  <div class="reel" id="reel">
+
+    <!-- ── SLIDE 0 — Portada ── -->
+    <div class="slide slide-0 active">
+      <div class="counter">01 / 10</div>
+      <span style="flex:1"></span>
+      <span class="big-emoji">🖼️</span>
+      <div class="chip" style="background:rgba(124,58,237,.2);color:#a78bfa;border:1px solid rgba(124,58,237,.4)">
+        BUAP · 10° semestre
+      </div>
+      <h1 style="color:#a78bfa">Análisis de<br>Imágenes RGB</h1>
+      <p class="sub">De píxeles a estadísticas: un pipeline completo de visión computacional y regresión lineal.</p>
+      <div class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(124,58,237,.15)">🐍</div>
+          <div class="card-text">
+            <strong>Stack principal</strong>
+            <span>Python · OpenCV · NumPy · Pandas · Tkinter</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(6,182,212,.15)">📊</div>
+          <div class="card-text">
+            <strong>Objetivo</strong>
+            <span>Extraer canal R, vectorizar corpus y aplicar regresión lineal</span>
+          </div>
+        </div>
+      </div>
+      <span style="flex:1"></span>
+      <p class="swipe-hint">▲ desliza para explorar ▲</p>
+    </div>
+
+    <!-- ── SLIDE 1 — Tecnologías ── -->
+    <div class="slide slide-1">
+      <div class="counter">02 / 10</div>
+      <div class="chip" style="background:rgba(6,182,212,.15);color:#67e8f9;border:1px solid rgba(6,182,212,.3)">
+        🛠 Stack tecnológico
+      </div>
+      <h2>Herramientas<br>usadas</h2>
+      <p class="sub">Cada librería cumple un rol específico en el pipeline.</p>
+      <div class="tech-grid">
+        <div class="tech-pill"><span>🐍</span> Python 3</div>
+        <div class="tech-pill"><span>👁️</span> OpenCV</div>
+        <div class="tech-pill"><span>🔢</span> NumPy</div>
+        <div class="tech-pill"><span>🐼</span> Pandas</div>
+        <div class="tech-pill"><span>📈</span> Matplotlib</div>
+        <div class="tech-pill"><span>📐</span> SciPy</div>
+        <div class="tech-pill"><span>🖥️</span> Tkinter</div>
+        <div class="tech-pill"><span>📋</span> Excel .xlsx</div>
+      </div>
+      <div style="margin-top:16px" class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(6,182,212,.15)">💡</div>
+          <div class="card-text">
+            <strong>Por qué este stack</strong>
+            <span>Libre, reproducible y orientado a ciencia de datos científica</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SLIDE 2 — Procesamiento de imágenes ── -->
+    <div class="slide slide-2">
+      <div class="counter">03 / 10</div>
+      <div class="chip" style="background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.3)">
+        🖼 Procesamiento de imágenes
+      </div>
+      <h2>De imagen<br>a matriz</h2>
+      <p class="sub">OpenCV carga la imagen y la descompone en sus tres canales de color.</p>
+
+      <div class="pixel-grid">
+        <div class="px" style="background:#e64d3a">235</div>
+        <div class="px" style="background:#c0392b">192</div>
+        <div class="px" style="background:#a93226">169</div>
+        <div class="px" style="background:#cd5c5c">205</div>
+        <div class="px" style="background:#b22222">178</div>
+        <div class="px" style="background:#d63031">214</div>
+        <div class="px" style="background:#6c9e6c">108</div>
+        <div class="px" style="background:#4a7a4a">74</div>
+        <div class="px" style="background:#558855">85</div>
+        <div class="px" style="background:#72a172">114</div>
+        <div class="px" style="background:#5c8a5c">92</div>
+        <div class="px" style="background:#68976800">104</div>
+        <div class="px" style="background:#3a5f8a">058</div>
+        <div class="px" style="background:#2e5280">046</div>
+        <div class="px" style="background:#365e90">054</div>
+        <div class="px" style="background:#4070a0">064</div>
+        <div class="px" style="background:#3a6898">058</div>
+        <div class="px" style="background:#2d5a8e">045</div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:12px">↑ Valores reales de píxeles RGB (6×3)</p>
+
+      <div class="codeblock">
+<span class="cm"># Lectura y redimensionamiento</span>
+img = cv2.<span class="fn">imread</span>(<span class="str">'imagen.jpg'</span>)
+img = cv2.<span class="fn">resize</span>(img, (<span class="num">100</span>, <span class="num">100</span>))
+B, G, R = cv2.<span class="fn">split</span>(img)   <span class="cm"># ← separa canales</span>
+      </div>
+    </div>
+
+    <!-- ── SLIDE 3 — Vectorización ── -->
+    <div class="slide slide-3">
+      <div class="counter">04 / 10</div>
+      <div class="chip" style="background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.3)">
+        📐 Vectorización
+      </div>
+      <h2>Imagen → Vector<br>1D</h2>
+      <p class="sub">La matriz 2D del canal R se aplana a un vector de 10 000 valores (100×100).</p>
+
+      <div class="formula" style="border-color:rgba(245,158,11,.3)">
+        <span style="color:#fcd34d">M<sub>100×100</sub></span>
+        <span style="color:var(--muted);font-size:14px;font-weight:400"> → flatten() → </span>
+        <span style="color:#fcd34d">V<sub>10000</sub></span>
+      </div>
+
+      <div class="codeblock">
+<span class="cm"># Aplanar canal R a 1D</span>
+vector_R = R.<span class="fn">flatten</span>()          <span class="cm"># shape (10000,)</span>
+df = pd.<span class="fn">DataFrame</span>([vector_R])  <span class="cm"># fila por imagen</span>
+df.<span class="fn">to_excel</span>(<span class="str">'vectores.xlsx'</span>)  <span class="cm"># guardar</span>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(245,158,11,.15)">📦</div>
+          <div class="card-text">
+            <strong>Resultado</strong>
+            <span>vectores_unicos.xlsx · ~315 KB · un vector por imagen del corpus</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SLIDE 4 — Pipeline completo ── -->
+    <div class="slide slide-4">
+      <div class="counter">05 / 10</div>
+      <div class="chip" style="background:rgba(124,58,237,.15);color:#c4b5fd;border:1px solid rgba(124,58,237,.3)">
+        🔄 Pipeline de datos
+      </div>
+      <h2>Flujo completo</h2>
+      <p class="sub" style="margin-bottom:14px">Cada etapa transforma los datos hacia el análisis final.</p>
+      <div class="pipeline">
+        <div class="pipe-step" style="border-left-color:#7c3aed">
+          📁 <span>Corpus de imágenes (PNG/JPG)</span>
+        </div>
+        <div class="pipe-arrow">↓</div>
+        <div class="pipe-step" style="border-left-color:#06b6d4">
+          👁️ <span>Lectura + Redimensionamiento 100×100</span>
+        </div>
+        <div class="pipe-arrow">↓</div>
+        <div class="pipe-step" style="border-left-color:#10b981">
+          🔴 <span>Extracción canal R</span>
+        </div>
+        <div class="pipe-arrow">↓</div>
+        <div class="pipe-step" style="border-left-color:#f59e0b">
+          📐 <span>Aplanamiento a vector 1D</span>
+        </div>
+        <div class="pipe-arrow">↓</div>
+        <div class="pipe-step" style="border-left-color:#ef4444">
+          📊 <span>Estadísticas descriptivas</span>
+        </div>
+        <div class="pipe-arrow">↓</div>
+        <div class="pipe-step" style="border-left-color:#8b5cf6">
+          📈 <span>Regresión lineal + visualización</span>
+        </div>
+        <div class="pipe-arrow">↓</div>
+        <div class="pipe-step" style="border-left-color:#ec4899">
+          💾 <span>Excel + gráficos PNG</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SLIDE 5 — Estadísticas descriptivas ── -->
+    <div class="slide slide-5">
+      <div class="counter">06 / 10</div>
+      <div class="chip" style="background:rgba(6,182,212,.15);color:#67e8f9;border:1px solid rgba(6,182,212,.3)">
+        📊 Estadísticas descriptivas
+      </div>
+      <h2>Métricas por<br>vector</h2>
+      <p class="sub">Se calculan sobre los valores de intensidad (0–255) del canal R.</p>
+      <div class="stat-grid">
+        <div class="stat-box">
+          <span class="val" style="color:#67e8f9">μ</span>
+          <div class="lbl">Media</div>
+        </div>
+        <div class="stat-box">
+          <span class="val" style="color:#a78bfa">Md</span>
+          <div class="lbl">Mediana</div>
+        </div>
+        <div class="stat-box">
+          <span class="val" style="color:#6ee7b7">Mo</span>
+          <div class="lbl">Moda</div>
+        </div>
+        <div class="stat-box">
+          <span class="val" style="color:#fcd34d">σ²</span>
+          <div class="lbl">Varianza</div>
+        </div>
+        <div class="stat-box">
+          <span class="val" style="color:#f87171">σ</span>
+          <div class="lbl">Desv. estándar</div>
+        </div>
+        <div class="stat-box">
+          <span class="val" style="color:#fb923c">R</span>
+          <div class="lbl">Rango</div>
+        </div>
+        <div class="stat-box">
+          <span class="val" style="color:#34d399">Q1</span>
+          <div class="lbl">1er cuartil</div>
+        </div>
+        <div class="stat-box">
+          <span class="val" style="color:#818cf8">Q3</span>
+          <div class="lbl">3er cuartil</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SLIDE 6 — Regresión Lineal ── -->
+    <div class="slide slide-6">
+      <div class="counter">07 / 10</div>
+      <div class="chip" style="background:rgba(167,139,250,.15);color:#c4b5fd;border:1px solid rgba(167,139,250,.3)">
+        📈 Regresión lineal
+      </div>
+      <h2>Modelo de<br>tendencia</h2>
+      <p class="sub">SciPy calcula la línea que mejor se ajusta a la nube de puntos (canal R vs índice).</p>
+
+      <div class="formula" style="border-color:rgba(167,139,250,.3);color:#c4b5fd;font-size:22px">
+        ŷ = <span style="color:#f87171">m</span>x + <span style="color:#67e8f9">b</span>
+      </div>
+
+      <div class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(248,113,113,.15);font-size:14px;font-weight:800;color:#f87171">m</div>
+          <div class="card-text">
+            <strong>Pendiente (slope)</strong>
+            <span>Dirección y tasa de cambio de la intensidad</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(103,232,249,.15);font-size:14px;font-weight:800;color:#67e8f9">b</div>
+          <div class="card-text">
+            <strong>Intersección (intercept)</strong>
+            <span>Valor inicial cuando x = 0</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(16,185,129,.15);font-size:14px;font-weight:800;color:#6ee7b7">R²</div>
+          <div class="card-text">
+            <strong>Coeficiente de determinación</strong>
+            <span>Qué tan bien explica el modelo los datos (0–1)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="codeblock" style="margin-top:6px">
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+m, b, r, p, se = stats.<span class="fn">linregress</span>(x, y)
+      </div>
+    </div>
+
+    <!-- ── SLIDE 7 — Residuos y error estándar ── -->
+    <div class="slide slide-7">
+      <div class="counter">08 / 10</div>
+      <div class="chip" style="background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.3)">
+        📏 Residuos y error S
+      </div>
+      <h2>Desviaciones de<br>la línea</h2>
+      <p class="sub">Cada punto tiene una distancia vertical a la línea de regresión: el residuo.</p>
+
+      <div class="formula" style="border-color:rgba(16,185,129,.3);font-size:16px;text-align:left;padding:14px 18px">
+        <span style="color:#6ee7b7">eᵢ = yᵢ − ŷᵢ</span><br>
+        <span style="color:var(--muted);font-size:13px">residuo = valor real − valor predicho</span>
+      </div>
+
+      <div class="formula" style="border-color:rgba(16,185,129,.3);font-size:16px;text-align:left;padding:14px 18px;margin-top:0">
+        <span style="color:#6ee7b7">S = √(Σeᵢ² / (n−2))</span><br>
+        <span style="color:var(--muted);font-size:13px">error estándar de la regresión</span>
+      </div>
+
+      <div class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(16,185,129,.15)">🎯</div>
+          <div class="card-text">
+            <strong>Uso de S</strong>
+            <span>Cuantifica la dispersión típica de los puntos alrededor de la recta</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SLIDE 8 — Intervalos de confianza ── -->
+    <div class="slide slide-8">
+      <div class="counter">09 / 10</div>
+      <div class="chip" style="background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.3)">
+        🎯 Intervalos de confianza
+      </div>
+      <h2>Regla empírica<br>3 sigma</h2>
+      <p class="sub">Se cuentan cuántos puntos caen dentro de cada banda de confianza.</p>
+
+      <div class="interval-bar" style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#6ee7b7">
+        ±1σ &nbsp;→&nbsp; 68.27%
+        <span>banda verde</span>
+      </div>
+      <div class="interval-bar" style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:#93c5fd">
+        ±2σ &nbsp;→&nbsp; 95.45%
+        <span>banda azul</span>
+      </div>
+      <div class="interval-bar" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fcd34d">
+        ±3σ &nbsp;→&nbsp; 99.73%
+        <span>banda amarilla</span>
+      </div>
+
+      <div class="card" style="margin-top:6px">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(245,158,11,.15)">📊</div>
+          <div class="card-text">
+            <strong>Visualización</strong>
+            <span>Scatter plot + línea de regresión + 3 bandas de confianza superpuestas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SLIDE 9 — Arquitectura / cierre ── -->
+    <div class="slide slide-9">
+      <div class="counter">10 / 10</div>
+      <div class="chip" style="background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3)">
+        🏗 Arquitectura
+      </div>
+      <h2>Diseño del<br>sistema</h2>
+      <p class="sub">Iteración incremental en 7 versiones (0.0 → 0.6) con GUI integrada.</p>
+
+      <div class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(99,102,241,.15)">🖥️</div>
+          <div class="card-text">
+            <strong>Patrón MVC</strong>
+            <span>Lógica (funciones Python) separada de la vista (Tkinter)</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(16,185,129,.15)">🔄</div>
+          <div class="card-text">
+            <strong>Batch processing</strong>
+            <span>Procesa un corpus completo de imágenes en un solo ciclo</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(245,158,11,.15)">📦</div>
+          <div class="card-text">
+            <strong>Persistencia Excel</strong>
+            <span>Cada etapa guarda resultados intermedios en .xlsx</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="icon-box" style="background:rgba(239,68,68,.15)">🔬</div>
+          <div class="card-text">
+            <strong>Desarrollo iterativo</strong>
+            <span>Versionado numérico (0.0, 0.1 … 0.6) visible en el repo</span>
+          </div>
+        </div>
+      </div>
+
+      <p style="text-align:center;margin-top:16px;font-size:12px;color:var(--muted)">
+        RI_images · BUAP 10° sem · Python + OpenCV + SciPy
+      </p>
+    </div>
+
+  </div><!-- /reel -->
+</div><!-- /phone -->
+
+<!-- nav buttons (outside phone for click area) -->
+<div class="nav">
+  <button id="prev" disabled>&#8593;</button>
+  <button id="next">&#8595;</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const reel   = document.getElementById('reel');
+  const dotsEl = document.getElementById('dots');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  const H = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--h'));
+  let cur = 0;
+
+  // build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(idx) {
+    slides[cur].classList.remove('active');
+    cur = Math.max(0, Math.min(idx, slides.length - 1));
+    slides[cur].classList.add('active');
+    reel.style.transform = `translateY(-${cur * 692}px)`;
+    document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === cur));
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === slides.length - 1;
+  }
+
+  prevBtn.onclick = () => goTo(cur - 1);
+  nextBtn.onclick = () => goTo(cur + 1);
+
+  // keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goTo(cur + 1); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); goTo(cur - 1); }
+  });
+
+  // touch/swipe on the phone
+  let startY = 0;
+  const phone = document.getElementById('phone');
+  phone.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+  phone.addEventListener('touchend', e => {
+    const dy = startY - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 40) dy > 0 ? goTo(cur + 1) : goTo(cur - 1);
+  }, { passive: true });
+</script>
+</body>
+</html>
